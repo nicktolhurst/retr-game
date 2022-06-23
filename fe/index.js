@@ -5,7 +5,7 @@ const FOOD_COLOUR = '#e66916';
 const SPRITE_SIZE = 32;
 const SPRITE = new Image();
 
-const socket = io('https://retr-ws.herokuapp.com/');
+const socket = io('http://localhost:3000');
 
 socket.on('init', handleInit);
 socket.on('gameState', handleGameState);

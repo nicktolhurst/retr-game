@@ -1,4 +1,6 @@
-const { GRID_SIZE, GRAVITY, FRICTION, FRAME_DELAY, FRAME_SETS, SCREEN_WIDTH, SCREEN_HEIGHT, SPEED, SPRITE_SIZE } = require('./constants');
+const { GRAVITY, FRICTION, FRAME_DELAY, FRAME_SETS, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
+const MECHANICS = require('./mechanics');
+const {move} = require('./player');
 
 const Input = () => ({ active: false, state: false });
 
@@ -82,86 +84,19 @@ function gameLoop(state) {
 
   state.players.forEach(p => {
 
-    if (p.keys["up"].active && p.grounded == true) {
+    if (p.keys['up'].active && p.grounded == true) make(p)['jump'](10);
 
-      p.keys['up'].active = false;
-      p.vel.y -= 10;
-
-    }
-
-    if (p.keys['left'].active) {
-
-      p.vel.x -= 5;
-
-    }
-
-    if (p.keys['right'].active) {
-
-      p.vel.x += 5;
-
-    }
+    if (p.keys['left'].active)  move(p)['left'](5);
+    if (p.keys['right'].active) move(p)['right'](5);
 
 
-
-
-
-
-
-
-
-    p.vel.x *= FRICTION;
-    p.vel.y += GRAVITY;
-
-    p.pre.x = p.pos.x;
-    p.pre.y = p.pos.y;
-
-    p.pos.x += p.vel.x;
-    p.pos.y += p.vel.y;
-
-
-    // am I jumping?
-    if (p.pos.y + SPRITE_SIZE > SCREEN_HEIGHT - 2) {
-      p.grounded = true;
-      p.pos.y = SCREEN_HEIGHT - 2 - SPRITE_SIZE;
-      p.vel.y = 0;
-    }
-    else {
-      p.grounded = false;
-    }
-
-    // calculate direction.
-    if (Math.floor(p.pos.x) == Math.floor(p.pre.x)) {
-      p.dir.x = 0;
-    } else if (Math.floor(p.pos.x) > Math.floor(p.pre.x)) {
-      p.dir.x = 1;
-    } else {
-      p.dir.x = -1;
-    }
-
-    // calculate flying or falling.
-    if (Math.floor(p.pos.y) == Math.floor(p.pre.y)) {
-      p.dir.y = 0;
-    } else if (Math.floor(p.pos.y) > Math.floor(p.pre.y)) {
-      p.dir.y = -1;
-    } else {
-      p.dir.y = 1;
-    }
-
-    if (p.pos.x < 0) {
-      p.vel.x = 0;
-      p.pre.x = p.pos.x = 0;
-    } else if (p.pos.x + SPRITE_SIZE > SCREEN_WIDTH) {
-      p.vel.x = 0;
-      p.pre.x = p.pos.x = SCREEN_WIDTH - SPRITE_SIZE;
-    }
-
-    if (p.pos.y < 0) {
-      p.vel.y = 0;
-      p.pre.y = p.pos.y = 0;
-    } else if (p.pos.y + SPRITE_SIZE > SCREEN_HEIGHT) {
-      p.vel.y = 0;
-      p.pre.y = p.pos.y = SCREEN_HEIGHT - SPRITE_SIZE;
-    }
+    MECHANICS.applyPhysics(p, GRAVITY, FRICTION);
+    MECHANICS.setPreviousPosition(p);
+    MECHANICS.setNewPosition(p);
+    MECHANICS.grounded(p, SPRITE_SIZE, SCREEN_HEIGHT);
+    MECHANICS.playerOrientation(p);
+    MECHANICS.flyingOrFalling(p);
+    MECHANICS.gameBoundaries(p, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     if (p.dir.y == -1 && p.dir.x == -1) { p.animation.change(FRAME_SETS[9], FRAME_DELAY) }     // fall left
     if (p.dir.y == -1 && p.dir.x == 1) { p.animation.change(FRAME_SETS[8], FRAME_DELAY) }      // fall right
