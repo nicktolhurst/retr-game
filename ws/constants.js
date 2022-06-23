@@ -21,7 +21,7 @@ const SCREEN_HEIGHT = 768;
 const GRID_SIZE = 20;
 const SPEED = 5;
 const JUMP_FORCE = 3;
-const SPRITE_SIZE = 32 * 2.5;
+const SPRITE_SIZE = 32 * 4;
 
 module.exports = {
   FRAME_DELAY,

@@ -76,7 +76,7 @@ function paintGame(state) {
 function paintPlayer(player, colour) {
   ctx.fillStyle = colour;
 
-  ctx.drawImage(SPRITES[player.id -1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 2.5, SPRITE_SIZE * 2.5);
+  ctx.drawImage(SPRITES[player.id -1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 4, SPRITE_SIZE * 4);
 
   drawPlayerDiagnostics(player);
 }
