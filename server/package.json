@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "socket.io": "^2.3.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "publishToHeroku": "cd ../ && git subtree push --prefix backend heroku-ws main || true"
+  },
+  "engines": {
+    "node": ">= 14.18.0",
+    "npm": ">= 6.14.15"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
