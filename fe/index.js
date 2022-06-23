@@ -63,6 +63,8 @@ function paintGame(state) {
   ctx.fillStyle = BG_COLOUR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  ctx.imageSmoothingEnabled = false;
+
   paintPlayer(state.players[0], SNAKE_COLOUR);
   paintPlayer(state.players[1], 'red');
 }
@@ -70,7 +72,7 @@ function paintGame(state) {
 function paintPlayer(player, colour) {
   ctx.fillStyle = colour;
 
-  ctx.drawImage(SPRITE, player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE, SPRITE_SIZE);
+  ctx.drawImage(SPRITE, player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 2.5, SPRITE_SIZE * 2.5);
 
   drawPlayerDiagnostics(player);
 }

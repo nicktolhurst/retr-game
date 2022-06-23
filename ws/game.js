@@ -86,8 +86,8 @@ function gameLoop(state) {
   state.players.forEach(player => {
 
     if (player.keys['up'].active && player.grounded == true) make(player)['jump'](10);
-    if (player.keys['left'].active) move(player)['left'](5);
-    if (player.keys['right'].active) move(player)['right'](5);
+    if (player.keys['left'].active) move(player)['left'](6);
+    if (player.keys['right'].active) move(player)['right'](6);
 
     MECHANICS.applyPhysics(player, GRAVITY, FRICTION);
     MECHANICS.setPreviousPosition(player);

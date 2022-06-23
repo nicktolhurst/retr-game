@@ -16,12 +16,12 @@ const FRAME_SETS = [
 ]
 const FRICTION = 0.6;
 const GRAVITY = 0.6;
-const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 600;
+const SCREEN_WIDTH = 1200;
+const SCREEN_HEIGHT = 768;
 const GRID_SIZE = 20;
 const SPEED = 5;
 const JUMP_FORCE = 3;
-const SPRITE_SIZE = 32;
+const SPRITE_SIZE = 32 * 2.5;
 
 module.exports = {
   FRAME_DELAY,
