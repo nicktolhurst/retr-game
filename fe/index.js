@@ -3,7 +3,10 @@ const SNAKE_COLOUR = '#c2c2c2';
 const FOOD_COLOUR = '#e66916';
 
 const SPRITE_SIZE = 32;
-const SPRITE = new Image();
+const SPRITES = [
+  new Image(),
+  new Image()
+]
 
 const socket = io('http://localhost:3000');
 
@@ -43,7 +46,8 @@ function init() {
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  SPRITE.src = 'media/sprite.png';
+  SPRITES[0].src = 'media/sprite.png';
+  SPRITES[1].src = 'media/sprite3.png';
 
   CONTROLLER.activate(socket);
 
@@ -72,7 +76,7 @@ function paintGame(state) {
 function paintPlayer(player, colour) {
   ctx.fillStyle = colour;
 
-  ctx.drawImage(SPRITE, player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 2.5, SPRITE_SIZE * 2.5);
+  ctx.drawImage(SPRITES[player.id -1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 2.5, SPRITE_SIZE * 2.5);
 
   drawPlayerDiagnostics(player);
 }
