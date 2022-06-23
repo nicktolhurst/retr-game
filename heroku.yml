@@ -1,9 +1,0 @@
-build:
-  docker:
-    app: app/Dockerfile
-    server: server/Dockerfile
-run:
-  web:
-     image: app
-  worker:
-     image: server
