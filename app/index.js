@@ -43,7 +43,7 @@ function init() {
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  SPRITE.src = 'sprite.png';
+  SPRITE.src = 'media/sprite.png';
 
   CONTROLLER.activate(socket);
 
