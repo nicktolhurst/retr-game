@@ -24,3 +24,10 @@ open:
 	$(CHROME) --auto-open-devtools-for-tabs  http://localhost:8080
 	$(CHROME) --auto-open-devtools-for-tabs  http://localhost:8080
 
+
+
+publish-app:
+	git subtree push --prefix app heroku-app main || true
+
+publish-ws:
+	git subtree push --prefix server heroku-ws main || true

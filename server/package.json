@@ -4,7 +4,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "publishToHeroku": "cd ../ && git subtree push --prefix backend heroku-ws main || true"
+    "publishToHeroku": "cd ../ && git subtree push --prefix server heroku-ws main || true"
   },
   "engines": {
     "node": ">= 14.18.0",
