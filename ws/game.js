@@ -1,5 +1,6 @@
 const { GRAVITY, FRICTION, FRAME_DELAY, FRAME_SETS, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
 const MECHANICS = require('./mechanics');
+const ANIMATOR = require('./animator');
 const {move} = require('./player');
 
 const Input = () => ({ active: false, state: false });
@@ -82,35 +83,21 @@ function gameLoop(state) {
     return;
   }
 
-  state.players.forEach(p => {
+  state.players.forEach(player => {
 
-    if (p.keys['up'].active && p.grounded == true) make(p)['jump'](10);
+    if (player.keys['up'].active && player.grounded == true) make(player)['jump'](10);
+    if (player.keys['left'].active) move(player)['left'](5);
+    if (player.keys['right'].active) move(player)['right'](5);
 
-    if (p.keys['left'].active)  move(p)['left'](5);
-    if (p.keys['right'].active) move(p)['right'](5);
+    MECHANICS.applyPhysics(player, GRAVITY, FRICTION);
+    MECHANICS.setPreviousPosition(player);
+    MECHANICS.setNewPosition(player);
+    MECHANICS.setIsGrounded(player, SPRITE_SIZE, SCREEN_HEIGHT);
+    MECHANICS.setPlayerOrientation(player);
+    MECHANICS.setFlyingOrFalling(player);
+    MECHANICS.restrictGameBoundaries(player, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-
-    MECHANICS.applyPhysics(p, GRAVITY, FRICTION);
-    MECHANICS.setPreviousPosition(p);
-    MECHANICS.setNewPosition(p);
-    MECHANICS.grounded(p, SPRITE_SIZE, SCREEN_HEIGHT);
-    MECHANICS.playerOrientation(p);
-    MECHANICS.flyingOrFalling(p);
-    MECHANICS.gameBoundaries(p, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    if (p.dir.y == -1 && p.dir.x == -1) { p.animation.change(FRAME_SETS[9], FRAME_DELAY) }     // fall left
-    if (p.dir.y == -1 && p.dir.x == 1) { p.animation.change(FRAME_SETS[8], FRAME_DELAY) }      // fall right
-    if (p.dir.y == -1 && p.dir.x == 0) { p.animation.change(FRAME_SETS[11], FRAME_DELAY) }     // fall forward
-
-    if (p.dir.y == 1 && p.dir.x == -1) { p.animation.change(FRAME_SETS[6], FRAME_DELAY) }      // jump left
-    if (p.dir.y == 1 && p.dir.x == 1) { p.animation.change(FRAME_SETS[7], FRAME_DELAY) }       // jump right
-    if (p.dir.y == 1 && p.dir.x == 0) { p.animation.change(FRAME_SETS[10], FRAME_DELAY) }      // jump forward
-
-    if (p.dir.y == 0 && p.dir.x == 1 && p.grounded) { p.animation.change(FRAME_SETS[1], FRAME_DELAY) }       // ground right
-    if (p.dir.y == 0 && p.dir.x == -1 && p.grounded) { p.animation.change(FRAME_SETS[2], FRAME_DELAY) }      // ground left
-    if (p.dir.y == 0 && p.dir.x == 0 && p.grounded) { p.animation.change(FRAME_SETS[0], FRAME_DELAY) }       // ground forward
-
-    p.animation.update();
+    ANIMATOR.setPlayerAnimation(player, FRAME_SETS)
   });
 
   return false;

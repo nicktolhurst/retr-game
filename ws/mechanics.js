@@ -1,5 +1,5 @@
 module.exports = {
-    gameBoundaries: (p, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT) => {
+    restrictGameBoundaries: (p, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT) => {
         if (p.pos.x < 0) {
             p.vel.x = 0;
             p.pre.x = p.pos.x = 0;
@@ -19,7 +19,7 @@ module.exports = {
         return this;
     },
 
-    flyingOrFalling: (p) => {
+    setFlyingOrFalling: (p) => {
         if (Math.floor(p.pos.y) == Math.floor(p.pre.y)) {
             p.dir.y = 0;
         } else if (Math.floor(p.pos.y) > Math.floor(p.pre.y)) {
@@ -31,7 +31,7 @@ module.exports = {
         return this;
     },
 
-    playerOrientation: (p) => {
+    setPlayerOrientation: (p) => {
         if (Math.floor(p.pos.x) == Math.floor(p.pre.x)) {
             p.dir.x = 0;
         } else if (Math.floor(p.pos.x) > Math.floor(p.pre.x)) {
@@ -43,7 +43,7 @@ module.exports = {
         return this;
     },
 
-    grounded: (p, SPRITE_SIZE, SCREEN_HEIGHT) => {
+    setIsGrounded: (p, SPRITE_SIZE, SCREEN_HEIGHT) => {
         if (p.pos.y + SPRITE_SIZE > SCREEN_HEIGHT - 2) {
             p.grounded = true;
             p.pos.y = SCREEN_HEIGHT - 2 - SPRITE_SIZE;
