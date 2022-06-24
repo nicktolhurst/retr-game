@@ -195,9 +195,7 @@ function stringStringFormatter(s) {
 
 function numberStringFormatter(n) {
 
-  console.log(n);
-
-  // n = n.toFixed(3);
+  n = n.toFixed(3);
 
   if ((n < 10 & n >= 0)) { // single digits
 
