@@ -10,7 +10,7 @@ const SPRITES = [
 
 const host = new URL((window.location.href)).hostname;
 
-const socket = io(host == 'https://retr-fe.herokuapp.com/' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
+const socket = io(host == 'retr-fe.herokuapp.com' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
 
 socket.on('init', handleInit);
 socket.on('gameState', handleGameState);
