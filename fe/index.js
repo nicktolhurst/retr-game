@@ -8,7 +8,7 @@ const SPRITES = [
   new Image()
 ]
 
-const host = new URL((window.location.href)).hostname);
+const host = new URL((window.location.href)).hostname;
 
 const socket = io(host == 'https://retr-fe.herokuapp.com/' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
 
