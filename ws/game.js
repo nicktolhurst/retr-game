@@ -10,6 +10,7 @@ function initGame() {
   const state = {
     players: [{
       id: 1,
+      scale: 5,
       dir: {
         x: 0,
         y: 0
@@ -26,12 +27,9 @@ function initGame() {
         x: 0,
         y: 0
       },
+      facing: 'right',
       grounded: true,
       animation: new Animation(),
-      hp: {
-        max: 30,
-        left: 30
-      },
       keys: {
         'left': Input(),
         'right': Input(),
@@ -41,6 +39,7 @@ function initGame() {
     },
     {
       id: 2,
+      scale: 5,
       dir: {
         x: 0,
         y: 0
@@ -57,12 +56,9 @@ function initGame() {
         x: 0,
         y: 0
       },
+      facing: 'left',
       grounded: true,
       animation: new Animation(),
-      hp: {
-        max: 30,
-        left: 30
-      },
       keys: {
         'left': Input(),
         'right': Input(),
@@ -85,17 +81,34 @@ function gameLoop(state) {
 
   state.players.forEach(player => {
 
-    if (player.keys['up'].active && player.grounded == true) make(player)['jump'](10);
-    if (player.keys['left'].active) move(player)['left'](6);
-    if (player.keys['right'].active) move(player)['right'](6);
+    if (player.keys['up'].active && player.grounded == true) {
+      make(player)['jump'](10);
+    } 
+
+    if (player.keys['left'].active) {
+      move(player)['left'](6);
+    } 
+
+    if (player.keys['right'].active) {
+      move(player)['right'](6);
+    }
+
+    if (player.keys['down'].active) {
+      move(player)['down'](10);
+    }
 
     MECHANICS.applyPhysics(player, GRAVITY, FRICTION);
-    MECHANICS.setPreviousPosition(player);
     MECHANICS.setNewPosition(player);
-    MECHANICS.setIsGrounded(player, SPRITE_SIZE, SCREEN_HEIGHT);
+    MECHANICS.setIsGrounded(player, SPRITE_SIZE * player.scale, SCREEN_HEIGHT);
     MECHANICS.setPlayerOrientation(player);
     MECHANICS.setFlyingOrFalling(player);
-    MECHANICS.restrictGameBoundaries(player, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    MECHANICS.restrictGameBoundaries(player, SPRITE_SIZE * player.scale, SCREEN_WIDTH, SCREEN_HEIGHT);
+    MECHANICS.setPreviousPosition(player);
+
+    player.vel.x = MECHANICS.preventExponents(player.vel.x);
+    player.vel.y = MECHANICS.preventExponents(player.vel.y);
+
+    MECHANICS.setRoundedValues(player);
 
     ANIMATOR.setPlayerAnimation(player, FRAME_SETS)
   });

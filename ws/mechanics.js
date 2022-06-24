@@ -15,8 +15,6 @@ module.exports = {
             p.vel.y = 0;
             p.pre.y = p.pos.y = SCREEN_HEIGHT - SPRITE_SIZE;
         }
-
-        return this;
     },
 
     setFlyingOrFalling: (p) => {
@@ -27,8 +25,6 @@ module.exports = {
         } else {
             p.dir.y = 1;
         }
-
-        return this;
     },
 
     setPlayerOrientation: (p) => {
@@ -39,12 +35,10 @@ module.exports = {
         } else {
             p.dir.x = -1;
         }
-
-        return this;
     },
 
     setIsGrounded: (p, SPRITE_SIZE, SCREEN_HEIGHT) => {
-        if (p.pos.y + SPRITE_SIZE > SCREEN_HEIGHT - 2) {
+        if (p.pos.y + SPRITE_SIZE > SCREEN_HEIGHT - 2 - 0.1) {
             p.grounded = true;
             p.pos.y = SCREEN_HEIGHT - 2 - SPRITE_SIZE;
             p.vel.y = 0;
@@ -52,28 +46,32 @@ module.exports = {
         else {
             p.grounded = false;
         }
-
-        return this;
     },
 
     applyPhysics: (p, GRAVITY, FRICTION) => {
         p.vel.x *= FRICTION;
         p.vel.y += GRAVITY;
-
-        return this;
     },
 
     setPreviousPosition: (p) => {
         p.pre.x = p.pos.x;
         p.pre.y = p.pos.y;
-
-        return this;
     },
 
     setNewPosition: (p) => {
         p.pos.x += p.vel.x;
         p.pos.y += p.vel.y;
-
-        return this;
     },
+
+    preventExponents: (v) => (v > 0 && v < 0.005) || (v < 0 && v > -0.005) ? 0 : v,
+
+    setRoundedValues: (p) => {
+        p.pos.x = parseFloat(parseFloat(p.pos.x).toFixed(3));
+        p.pos.y = parseFloat(parseFloat(p.pos.y).toFixed(3));
+        p.pre.x = parseFloat(parseFloat(p.pre.x).toFixed(3));
+        p.pre.y = parseFloat(parseFloat(p.pre.y).toFixed(3));
+        p.vel.x = parseFloat(parseFloat(p.vel.x).toFixed(3));
+        p.vel.y = parseFloat(parseFloat(p.vel.y).toFixed(3));
+    }
+
 }

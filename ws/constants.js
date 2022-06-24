@@ -13,6 +13,8 @@ const FRAME_SETS = [
   [15],               //  9: fall left
   [16],               // 10: jump forward
   [17],               // 11: fall forward
+  [2],                //  1: face right still.
+  [4],                //  1: face left still.
 ]
 const FRICTION = 0.6;
 const GRAVITY = 0.6;
@@ -21,7 +23,7 @@ const SCREEN_HEIGHT = 768;
 const GRID_SIZE = 20;
 const SPEED = 5;
 const JUMP_FORCE = 3;
-const SPRITE_SIZE = 32 * 4;
+const SPRITE_SIZE = 32;
 
 module.exports = {
   FRAME_DELAY,

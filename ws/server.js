@@ -1,6 +1,6 @@
 const io = require('socket.io')();
-const { initGame, gameLoop, getUpdatedVelocity, KEYS } = require('./game');
-const { FRAME_RATE, JUMP_FORCE } = require('./constants');
+const { initGame, gameLoop } = require('./game');
+const { FRAME_RATE } = require('./constants');
 const { makeid } = require('./utils');
 
 const state = {};
@@ -27,24 +27,31 @@ io.on('connection', client => {
 
     // Only allow 2 players (for now :D!)
     if (numClients === 0) {
-      client.emit('unknownCode');
+
+      handleNewGame(roomName);
       return;
+
     } else if (numClients > 1) {
+
       client.emit('tooManyPlayers');
       return;
+
     }
 
     clientRooms[client.id] = roomName;
 
     client.join(roomName);
     client.number = 2;
+    client.emit('gameCode', roomName);
     client.emit('init', 2);
     
     startGameInterval(roomName);
   }
 
-  function handleNewGame() {
-    let roomName = makeid(5);
+  function handleNewGame(code) {
+
+    roomName = code ?? makeid(5);
+
     clientRooms[client.id] = roomName;
     client.emit('gameCode', roomName);
 

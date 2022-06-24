@@ -1,4 +1,4 @@
-const BG_COLOUR = '#231f20';
+const BG_COLOUR = '#969892';
 const SNAKE_COLOUR = '#c2c2c2';
 const FOOD_COLOUR = '#e66916';
 
@@ -8,7 +8,7 @@ const SPRITES = [
   new Image()
 ]
 
-const socket = io('http://localhost:3000');
+const socket = io(process.env.WS_URI || 'http://localhost:3000');
 
 socket.on('init', handleInit);
 socket.on('gameState', handleGameState);
@@ -32,8 +32,8 @@ function newGame() {
   init();
 }
 
-function joinGame() {
-  const code = gameCodeInput.value;
+function joinGame(code) {
+  code = code ?? gameCodeInput.value;
   socket.emit('joinGame', code);
   init();
 }
@@ -42,12 +42,18 @@ let canvas, ctx;
 let playerNumber;
 let gameActive = false;
 
+const params = new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+});
+
+if (params.code) joinGame(params.code);
+
 function init() {
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  SPRITES[0].src = 'media/sprite.png';
-  SPRITES[1].src = 'media/sprite3.png';
+  SPRITES[0].src = 'media/Player_1.png';
+  SPRITES[1].src = 'media/Player_2.png';
 
   CONTROLLER.activate(socket);
 
@@ -76,7 +82,7 @@ function paintGame(state) {
 function paintPlayer(player, colour) {
   ctx.fillStyle = colour;
 
-  ctx.drawImage(SPRITES[player.id -1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * 4, SPRITE_SIZE * 4);
+  ctx.drawImage(SPRITES[player.id - 1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * player.scale, SPRITE_SIZE * player.scale);
 
   drawPlayerDiagnostics(player);
 }
@@ -146,35 +152,68 @@ function drawPlayerDiagnostics(player) {
 
   ctx.fillText('pos.x: ' + numberStringFormatter(player.pos.x), x , 56);
   ctx.fillText('vel.x: ' + numberStringFormatter(player.vel.x), x , 84);
-  ctx.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x , 112);
+  ctx.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x, 112);
+  ctx.fillText('grndd: ' + boolStringFormatter(player.grounded), x, 140);
+  ctx.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x , 168);
 
+  ctx.fillText('|  pos.y: ' + numberStringFormatter(player.pos.y), x + 230, 56);
+  ctx.fillText('|  vel.y: ' + numberStringFormatter(player.vel.y), x + 230, 84);
+  ctx.fillText('|  dir.y: ' + numberStringFormatter(player.dir.y), x + 230, 112);
+  ctx.fillText('|  facng: ' + stringStringFormatter(player.facing), x + 230, 140);
+  ctx.fillText('|  frame: ' + boolStringFormatter(player.animation.frame), x + 230, 168);
 
-  ctx.fillText('pos.y: ' + numberStringFormatter(player.pos.y), x + 300, 56);
-  ctx.fillText('vel.y: ' + numberStringFormatter(player.vel.y), x + 300, 84);
-  ctx.fillText('dir.y: ' + numberStringFormatter(player.dir.y), x + 300, 112);
 }
 
-function numberStringFormatter(number){
+function boolStringFormatter(b) {
+  let result;
+  
+  if (b) {
+    result = '    ' + b.toString()
+  } else {
+    result = '   ' + b.toString()
+  }
+  
+  return result
+}
 
-  number = number.toFixed(3);
+function stringStringFormatter(s) {
 
-  if ((number < 10 & number >= 0)) { // single digits
+  const l = s.length;
 
-    return '   ' + number;
+  if (l == 4) {
+    return '    ' + s
+  } else if (l == 5) {
+    return '   ' + s
+  } else if (l == 7) {
+    return ' ' + s
+  } else {
+    return s
+  }
+}
 
-  } else if ((number < 100 & number >= 10) || (number > -10 & number < 0)) { // double digits (including -)
+function numberStringFormatter(n) {
 
-    return '  ' + number;
+  console.log(n);
 
-  } else if ((number < 1000 & number >= 100) || (number > -100 & number <= -10)) { // triple digits (including -)
-    return ' ' + number;
+  // n = n.toFixed(3);
 
-  } else if ((number < 10000 & number >= 1000) || (number > -1000 & number <= -100)) { // quadruple digits (including -)
+  if ((n < 10 & n >= 0)) { // single digits
 
-    return '' + number;
+    return '   ' + n;
+
+  } else if ((n < 100 & n >= 10) || (n > -10 & n < 0)) { // double digits (including -)
+
+    return '  ' + n;
+
+  } else if ((n < 1000 & n >= 100) || (n > -100 & n <= -10)) { // triple digits (including -)
+    return ' ' + n;
+
+  } else if ((n < 10000 & n >= 1000) || (n > -1000 & n <= -100)) { // quadruple digits (including -)
+
+    return '' + n;
 
   } else {
-    console.log("unhandled number size: " + number)
+    console.log("unhandled number size: " + n)
   }
 }
 

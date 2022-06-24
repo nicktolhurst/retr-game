@@ -29,7 +29,7 @@ const CONTROLLER = (() => {
             case 37: trigger(keys.left, state); break;
             case 38: trigger(keys.up, state); break;
             case 39: trigger(keys.right, state); break;
-            case 39: trigger(keys.down, state); break;
+            case 40: trigger(keys.down, state); break;
             case 32: trigger(keys.space, state); 
         }
 
