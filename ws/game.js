@@ -1,4 +1,4 @@
-const { GRAVITY, FRICTION, FRAME_DELAY, FRAME_SETS, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
+const { GRAVITY, FRICTION, FRAME_DELAY, FRAME_SET, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
 const MECHANICS = require('./mechanics');
 const ANIMATOR = require('./animator');
 const {move} = require('./player');
@@ -68,8 +68,8 @@ function initGame() {
     }]
   };
 
-  state.players[0].animation.change(FRAME_SETS[0])
-  state.players[1].animation.change(FRAME_SETS[1])
+  state.players[0].animation.change(FRAME_SET.face_forward)
+  state.players[1].animation.change(FRAME_SET.face_forward)
 
   return state;
 }
@@ -110,7 +110,7 @@ function gameLoop(state) {
 
     MECHANICS.setRoundedValues(player);
 
-    ANIMATOR.setPlayerAnimation(player, FRAME_SETS)
+    ANIMATOR.setPlayerAnimation(player, FRAME_SET)
   });
 
   return false;

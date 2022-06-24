@@ -156,13 +156,13 @@ function drawPlayerDiagnostics(player) {
   ctx.fillText('vel.x: ' + numberStringFormatter(player.vel.x), x , 84);
   ctx.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x, 112);
   ctx.fillText('grndd: ' + boolStringFormatter(player.grounded), x, 140);
-  ctx.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x , 168);
+  ctx.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x, 168);
 
   ctx.fillText('|  pos.y: ' + numberStringFormatter(player.pos.y), x + 230, 56);
   ctx.fillText('|  vel.y: ' + numberStringFormatter(player.vel.y), x + 230, 84);
   ctx.fillText('|  dir.y: ' + numberStringFormatter(player.dir.y), x + 230, 112);
   ctx.fillText('|  facng: ' + stringStringFormatter(player.facing), x + 230, 140);
-  ctx.fillText('|  frame: ' + boolStringFormatter(player.animation.frame), x + 230, 168);
+  ctx.fillText('|  frame: ' + player.animation.frame, x + 230, 168);
 
 }
 
