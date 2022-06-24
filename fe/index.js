@@ -1,6 +1,6 @@
-const BG_COLOUR = '#969892';
-const SNAKE_COLOUR = '#c2c2c2';
-const FOOD_COLOUR = '#e66916';
+const BG_COLOUR = '#92A8D1';
+const SNAKE_COLOUR = '#152238';
+const FOOD_COLOUR = '#FF6F61';
 
 const SPRITE_SIZE = 32;
 const SPRITES = [
@@ -78,7 +78,7 @@ function paintGame(state) {
   ctx.imageSmoothingEnabled = false;
 
   paintPlayer(state.players[0], SNAKE_COLOUR);
-  paintPlayer(state.players[1], 'red');
+  paintPlayer(state.players[1], '#FF6F61');
 }
 
 function paintPlayer(player, colour) {

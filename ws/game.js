@@ -10,7 +10,7 @@ function initGame() {
   const state = {
     players: [{
       id: 1,
-      scale: 5,
+      scale: 4,
       dir: {
         x: 0,
         y: 0
@@ -39,7 +39,7 @@ function initGame() {
     },
     {
       id: 2,
-      scale: 5,
+      scale: 4,
       dir: {
         x: 0,
         y: 0
