@@ -1,72 +1,18 @@
-const { GRAVITY, FRICTION, FRAME_DELAY, FRAME_SET, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
+const { GRAVITY, FRICTION, FRAME_SET, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
 const MECHANICS = require('./mechanics');
 const ANIMATOR = require('./animator');
+const STATE = require('./state');
 const {move} = require('./player');
-
-const Input = () => ({ active: false, state: false });
+const COLLISIONS = require('./collisions')
 
 function initGame() {
 
-  const state = {
-    players: [{
-      id: 1,
-      scale: 4,
-      dir: {
-        x: 0,
-        y: 0
-      },
-      pos: {
-        x: 100,
-        y: 400
-      },
-      pre: {
-        x: 0,
-        y: 0
-      },
-      vel: {
-        x: 0,
-        y: 0
-      },
-      facing: 'right',
-      grounded: true,
-      animation: new Animation(),
-      keys: {
-        'left': Input(),
-        'right': Input(),
-        'up': Input(),
-        'down': Input()
-      }
-    },
-    {
-      id: 2,
-      scale: 4,
-      dir: {
-        x: 0,
-        y: 0
-      },
-      pos: {
-        x: 700,
-        y: 400
-      },
-      pre: {
-        x: 0,
-        y: 0
-      },
-      vel: {
-        x: 0,
-        y: 0
-      },
-      facing: 'left',
-      grounded: true,
-      animation: new Animation(),
-      keys: {
-        'left': Input(),
-        'right': Input(),
-        'up': Input(),
-        'down': Input()
-      }
-    }]
-  };
+  let state = STATE.state;
+
+  STATE.addWorld(STATE.WORLDS.basic);
+
+  // STATE.addPlayer(1);
+  // STATE.addPlayer(2);
 
   state.players[0].animation.change(FRAME_SET.face_forward)
   state.players[1].animation.change(FRAME_SET.face_forward)
@@ -75,6 +21,7 @@ function initGame() {
 }
 
 function gameLoop(state) {
+
   if (!state) {
     return;
   }
@@ -82,28 +29,41 @@ function gameLoop(state) {
   state.players.forEach(player => {
 
     if (player.keys['up'].active && player.grounded == true) {
-      make(player)['jump'](10);
+      make(player)['jump'](18);
     } 
 
     if (player.keys['left'].active) {
-      move(player)['left'](6);
+      move(player)['left'](22);
     } 
 
     if (player.keys['right'].active) {
-      move(player)['right'](6);
+      move(player)['right'](22);
     }
 
     if (player.keys['down'].active) {
-      move(player)['down'](10);
+      move(player)['down'](1.5);
     }
 
     MECHANICS.applyPhysics(player, GRAVITY, FRICTION);
+    MECHANICS.setPreviousPosition(player);
     MECHANICS.setNewPosition(player);
-    MECHANICS.setIsGrounded(player, SPRITE_SIZE * player.scale, SCREEN_HEIGHT);
+    MECHANICS.setIsGrounded(player, SPRITE_SIZE, state.world.height);
     MECHANICS.setPlayerOrientation(player);
     MECHANICS.setFlyingOrFalling(player);
-    MECHANICS.restrictGameBoundaries(player, SPRITE_SIZE * player.scale, SCREEN_WIDTH, SCREEN_HEIGHT);
-    MECHANICS.setPreviousPosition(player);
+    MECHANICS.restrictGameBoundaries(player, SPRITE_SIZE, state.world.width, state.world.height);
+
+    var y_offset = (32 / 5);
+    var tile_x = Math.floor((player.pos.x + 32 * 0.5) / 32);
+    var tile_y = Math.floor((player.pos.y + 32 - y_offset) / 32);
+    var value_at_index = state.world.tiles[tile_y * state.world.columns + tile_x];
+
+    COLLISIONS[value_at_index](player, tile_y, tile_x, y_offset, 32);
+
+    tile_x = Math.floor((player.pos.x + 32 * 0.5) / 32);
+    tile_y = Math.floor((player.pos.y + 32 - y_offset) / 32);
+    value_at_index = state.world.tiles[tile_y * state.world.columns + tile_x];
+
+    COLLISIONS[value_at_index](player, tile_y, tile_x, 32);
 
     player.vel.x = MECHANICS.preventExponents(player.vel.x);
     player.vel.y = MECHANICS.preventExponents(player.vel.y);
@@ -115,55 +75,6 @@ function gameLoop(state) {
 
   return false;
 }
-
-const Animation = function (frame_set = 0, delay) {
-
-  this.count = 0;                 // Counts the number of game cycles since the last frame change.
-  this.delay = delay;             // The number of game cycles to wait until the next frame change.
-  this.frame = 0;                 // The value in the sprite sheet of the sprite image / tile to display.
-  this.frame_index = 0;           // The frame's index in the current animation frame set.
-  this.frame_set = frame_set;     // The current animation frame set that holds sprite tile values.
-  this.lock = false;              // The current animation frame set that holds sprite tile values.
-
-};
-
-Animation.prototype = {
-
-  change: function (frame_set, delay = FRAME_DELAY) {
-
-    if (this.frame_set != frame_set && !this.lock) {    // If the frame set is different and not locked.
-
-      this.lock = true;
-      this.count = 0;                                 // Reset the count.
-      this.delay = delay;                             // Set the delay.
-      this.frame_index = 0;                           // Start at the first frame in the new frame set.
-      this.frame_set = frame_set;                     // Set the new frame set.
-      this.frame = this.frame_set[this.frame_index];  // Set the new frame value.
-
-    }
-  },
-
-  /* Call this on each game cycle. */
-  update: function () {
-
-    this.count++;
-
-    if (this.count >= this.delay) {
-
-      this.count = 0;
-      this.frame_index = (this.frame_index == this.frame_set.length - 1) ? 0 : this.frame_index + 1;
-      this.frame = this.frame_set[this.frame_index];
-
-    }
-
-    if (this.frame_index == (this.frame_set.length - 1)) {
-
-      this.lock = false;
-
-    }
-  }
-
-};
 
 module.exports = {
   initGame,

@@ -17,13 +17,13 @@ const FRAME_SET = {
   fall_forward: [17],
 }
 
-const FRICTION = 0.6;
-const GRAVITY = 0.6;
+const FRICTION = 0.18;
+const GRAVITY = 1.9;
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 768;
 const GRID_SIZE = 20;
 const SPEED = 5;
-const JUMP_FORCE = 3;
+const JUMP_FORCE = 1;
 const SPRITE_SIZE = 32;
 
 module.exports = {

@@ -8,9 +8,33 @@
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
   <style>
+    #canvas_container
+    {
+        background: #fff;
+        border: 1px solid #aaa;
+        border-radius: 15px;
+        margin: 20px 20px;
+        overflow: hidden;
+
+        /* this fixes the overflow:hidden in Chrome/Opera */
+        -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+    }
+    body {
+      background-color: #1F1E1C;
+      color: #F5F5F5;
+    }
     #gameScreen {
       display: none;
     }
+
+    canvas {
+
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+
+    }
+  </style>
   </style>
 
 </head>
@@ -37,17 +61,25 @@
       <div id="gameScreen" class="h-100">
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
 
-          <h1>Your game code is: <span id="gameCodeDisplay"></span></h1>
+        <h1> GAME CODE: <span id="gameCodeDisplay"></span></h1>
+        <p> Diagnostics:  <input id="enableDiagnostics" type="checkbox" checked data-toggle="toggle"></p>
+        <!-- <div id="canvas_container" class="d-flex flex-column align-items-center justify-content-center"> -->
 
+          <!-- <h1>Your game code is: <span id="gameCodeDisplay"></span></h1> -->
           <canvas id="canvas"></canvas>
         </div>
+
+        <!-- </div> -->
       </div>
 
     </div>
   </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="game.js"></script>
+  <script src="diagnostics.js"></script>
   <script src="controller.js"></script>
+  <script src="buffer.js"></script>
   <script src="index.js"></script>
 </body>
 

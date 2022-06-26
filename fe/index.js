@@ -1,17 +1,20 @@
-const BG_COLOUR = '#92A8D1';
-const SNAKE_COLOUR = '#152238';
-const FOOD_COLOUR = '#FF6F61';
-
+// Define sprites.
 const SPRITE_SIZE = 32;
-const SPRITES = [
+const PLAYER_SPRITES = [
+  // At least 2 players. More can be pushed.
   new Image(),
-  new Image()
+  new Image(),
 ]
+const WORLD_SPRITE = new Image();
 
+let buffer, display;
+let map_tiles;
+let playerNumber;
+let gameActive = false;
+
+// Configure socket.io and connectivity to web socket server.
 const host = new URL((window.location.href)).hostname;
-
 const socket = io(host == 'retr-fe.herokuapp.com' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
-
 socket.on('init', handleInit);
 socket.on('gameState', handleGameState);
 socket.on('gameOver', handleGameOver);
@@ -19,82 +22,87 @@ socket.on('gameCode', handleGameCode);
 socket.on('unknownCode', handleUnknownCode);
 socket.on('tooManyPlayers', handleTooManyPlayers);
 
+// HTML elements for home screen..
 const gameScreen = document.getElementById('gameScreen');
 const initialScreen = document.getElementById('initialScreen');
+const enableDiagnostics = document.getElementById('enableDiagnostics');
 const newGameBtn = document.getElementById('newGameButton');
 const joinGameBtn = document.getElementById('joinGameButton');
 const gameCodeInput = document.getElementById('gameCodeInput');
 const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 
-newGameBtn.addEventListener('click', newGame);
-joinGameBtn.addEventListener('click', joinGame);
+// Event listeners for home screen.
+enableDiagnostics.addEventListener('click', handleEnableDiagnostics);
+newGameBtn.addEventListener('click', handleNewGame);
+joinGameBtn.addEventListener('click', handleJoinGame);
 
-function newGame() {
+function handleEnableDiagnostics(event){
+
+  if (!gameActive) { return; }
+
+  GAME.Debugger.config.on = event.target.checked;
+}
+// Event handlers for home screen.
+function handleNewGame() {
   socket.emit('newGame');
-  init();
 }
 
-function joinGame(code) {
+function handleJoinGame(code) {
   code = code ?? gameCodeInput.value;
   socket.emit('joinGame', code);
-  init();
 }
 
-let canvas, ctx;
-let playerNumber;
-let gameActive = false;
-
+// URI string query parameters.
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, prop) => searchParams.get(prop),
 });
 
-if (params.code) joinGame(params.code);
+if (params.code) handleJoinGame(params.code);
 
-function init() {
+///////////////////
+// GAME LOGIC
+//
+
+function init(state) {
+
+  // Switches out of home screen and into game screen.
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  SPRITES[0].src = 'media/Player_1.png';
-  SPRITES[1].src = 'media/Player_2.png';
+  // Activates controller.
+  // CONTROLLER.activate(socket);
 
-  CONTROLLER.activate(socket);
+  // Loads player sprites.
+  PLAYER_SPRITES[0].src = 'media/player-1.png';
+  PLAYER_SPRITES[1].src = 'media/player-2.png';
 
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext('2d');
+  // Loads world sprites.
+  WORLD_SPRITE.src = 'media/world-basic.png';
 
-  canvas.width = 1200;
-  canvas.height = 768;
+  // The display canvas' context. Draw the tile buffer here.
+  // It's important not to desynchronize when using CSS to scale.
+  display = BUFFER.get(state.world.width, state.world.height, false, false);
 
-  ctx.fillStyle = BG_COLOUR;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // The tile buffer canvas' context. Draw individual tiles here.
+  buffer = BUFFER.create(state.world.width, state.world.height, false, true);
+
+  GAME.Debugger = new GAME.plugins.PhysicsDebugger(buffer);
+
+  console.log(GAME.Debug)
+
+  display.drawImage(buffer.canvas,0,0)
+
+  BUFFER.resize(display, state.world)
+
+  window.addEventListener("resize", () => {
+    BUFFER.resize(display, state.world)
+    BUFFER.resize(buffer, state.world)
+  });
 
   gameActive = true;
 }
 
-function paintGame(state) {
-  ctx.fillStyle = BG_COLOUR;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.imageSmoothingEnabled = false;
-
-  paintPlayer(state.players[0], SNAKE_COLOUR);
-  paintPlayer(state.players[1], '#FF6F61');
-}
-
-function paintPlayer(player, colour) {
-  ctx.fillStyle = colour;
-
-  ctx.drawImage(SPRITES[player.id - 1], player.animation.frame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, Math.floor(player.pos.x), Math.floor(player.pos.y), SPRITE_SIZE * player.scale, SPRITE_SIZE * player.scale);
-
-  drawPlayerDiagnostics(player);
-}
-
-function handleInit(number) {
-  playerNumber = number;
-
-  CONTROLLER.activate(socket, playerNumber);
-}
-
+// Game loop.
 function handleGameState(gameState) {
   if (!gameActive) {
     return;
@@ -104,6 +112,22 @@ function handleGameState(gameState) {
     paintGame(gameState);
   });
 }
+
+function paintGame(state) {
+
+  BUFFER.paintWorld(buffer, state.world);
+
+  BUFFER.paintPlayer(buffer, state.players[0], SPRITE_SIZE);
+  BUFFER.paintPlayer(buffer, state.players[1], SPRITE_SIZE);
+
+  display.drawImage(buffer.canvas, 0, 0);
+}
+
+function handleInit(data) {
+  CONTROLLER.activate(socket, data.playerNumber);
+  init(data.state);
+}
+
 
 function handleGameOver(data) {
   if (!gameActive) {
@@ -141,40 +165,51 @@ function reset() {
   gameScreen.style.display = "none";
 }
 
+function calculateTileSourcePosition(tile_index, tile_sheet_columns, size) {
+
+  return {
+
+    x: tile_index % tile_sheet_columns * size,
+    y: Math.floor(tile_index / tile_sheet_columns) * size
+
+  };
+
+}
+
 function drawPlayerDiagnostics(player) {
   let x = 0;
 
   if (player.id == 1) {
-    x = 50
+    x = 5
   } else if (player.id == 2) {
-    x = (canvas.width / 2) + 50
+    x = (canvas.width / 2) + 5
   }
 
-  ctx.font = "24px/28px monospace";
+  buffer.font = "10px/12px monospace";
 
-  ctx.fillText('pos.x: ' + numberStringFormatter(player.pos.x), x , 56);
-  ctx.fillText('vel.x: ' + numberStringFormatter(player.vel.x), x , 84);
-  ctx.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x, 112);
-  ctx.fillText('grndd: ' + boolStringFormatter(player.grounded), x, 140);
-  ctx.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x, 168);
+  buffer.fillText('pos.x: ' + numberStringFormatter(player.pos.x), x, 30);
+  buffer.fillText('vel.x: ' + numberStringFormatter(player.vel.x), x, 45);
+  buffer.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x, 60);
+  buffer.fillText('grndd: ' + boolStringFormatter(player.grounded), x, 75);
+  buffer.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x, 90);
 
-  ctx.fillText('|  pos.y: ' + numberStringFormatter(player.pos.y), x + 230, 56);
-  ctx.fillText('|  vel.y: ' + numberStringFormatter(player.vel.y), x + 230, 84);
-  ctx.fillText('|  dir.y: ' + numberStringFormatter(player.dir.y), x + 230, 112);
-  ctx.fillText('|  facng: ' + stringStringFormatter(player.facing), x + 230, 140);
-  ctx.fillText('|  frame: ' + player.animation.frame, x + 230, 168);
+  buffer.fillText('|  pos.y: ' + numberStringFormatter(player.pos.y), x + 230, 30);
+  buffer.fillText('|  vel.y: ' + numberStringFormatter(player.vel.y), x + 230, 45);
+  buffer.fillText('|  dir.y: ' + numberStringFormatter(player.dir.y), x + 230, 60);
+  buffer.fillText('|  facng: ' + stringStringFormatter(player.facing), x + 230, 75);
+  buffer.fillText('|  frame: ' + player.animation.frame, x + 230, 90);
 
 }
 
 function boolStringFormatter(b) {
   let result;
-  
+
   if (b) {
     result = '    ' + b.toString()
   } else {
     result = '   ' + b.toString()
   }
-  
+
   return result
 }
 

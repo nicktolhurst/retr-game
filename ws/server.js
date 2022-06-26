@@ -43,8 +43,8 @@ io.on('connection', client => {
     client.join(roomName);
     client.number = 2;
     client.emit('gameCode', roomName);
-    client.emit('init', 2);
-    
+    client.emit('init', { playerNumber: 2, state: state[roomName] });
+
     startGameInterval(roomName);
   }
 
@@ -59,7 +59,7 @@ io.on('connection', client => {
 
     client.join(roomName);
     client.number = 1;
-    client.emit('init', 1);
+    client.emit('init', { playerNumber: 1, state: state[roomName] });
   }
 
   function handleKeyupdown(keys) {
@@ -77,7 +77,7 @@ io.on('connection', client => {
 function startGameInterval(roomName) {
   const intervalId = setInterval(() => {
     const winner = gameLoop(state[roomName]);
-    
+
     if (!winner) {
       emitGameState(roomName, state[roomName])
     } else {
