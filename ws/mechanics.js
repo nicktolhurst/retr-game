@@ -1,3 +1,5 @@
+const COLLIDER = require('./collider')
+
 module.exports = {
     restrictGameBoundaries: (p, SPRITE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT) => {
         if (p.pos.x < 0) {
@@ -72,6 +74,21 @@ module.exports = {
         p.pre.y = parseFloat(parseFloat(p.pre.y).toFixed(3));
         p.vel.x = parseFloat(parseFloat(p.vel.x).toFixed(3));
         p.vel.y = parseFloat(parseFloat(p.vel.y).toFixed(3));
-    }
+    },
 
+    collide: (player, world) => {
+
+        var y_offset = (32 / 5);
+        var tile_x = Math.floor((player.pos.x + player.size * 0.5) / world.tile_size);
+        var tile_y = Math.floor((player.pos.y + player.size - y_offset) / world.tile_size);
+        var value_at_index = world.tiles[tile_y * world.columns + tile_x];
+
+        COLLIDER[value_at_index](player, tile_y, tile_x, y_offset, world.tile_size);
+
+        tile_x = Math.floor((player.pos.x + player.size * 0.5) / world.tile_size);
+        tile_y = Math.floor((player.pos.y + player.size - y_offset) / world.tile_size);
+        value_at_index = world.tiles[tile_y * world.columns + tile_x];
+
+        COLLIDER[value_at_index](player, tile_y, tile_x, y_offset, world.tile_size);
+    }
 }

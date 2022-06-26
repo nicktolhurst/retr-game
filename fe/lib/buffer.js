@@ -53,6 +53,15 @@ const BUFFER = (() => {
                 var tile_source_position = calculateTileSourcePosition(tile_value, 3, world.tile_size);
 
                 buffer.drawImage(WORLD_SPRITE, tile_source_position.x, tile_source_position.y, world.tile_size, world.tile_size, left, top, world.tile_size, world.tile_size);
+
+                GAME.Debugger.debug({
+                    type: 'tile',
+                    pos: {
+                        x: left,
+                        y: top,
+                    },
+                    size: world.tile_size
+                });
             }
         }
 
@@ -61,10 +70,10 @@ const BUFFER = (() => {
 
     function paintPlayer(buffer, player, sprite_size) {
 
-        GAME.Debugger.debug(player);
 
         buffer.drawImage(PLAYER_SPRITES[player.id - 1], player.animation.frame * sprite_size, 0, sprite_size, sprite_size, Math.floor(player.pos.x), Math.floor(player.pos.y), sprite_size, sprite_size);
     
+        GAME.Debugger.debug(player);
     }
 
     return { create, get, resize, paintWorld, paintPlayer };

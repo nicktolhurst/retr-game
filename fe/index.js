@@ -13,14 +13,15 @@ let playerNumber;
 let gameActive = false;
 
 // Configure socket.io and connectivity to web socket server.
-const host = new URL((window.location.href)).hostname;
-const socket = io(host == 'retr-fe.herokuapp.com' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
-socket.on('init', handleInit);
-socket.on('gameState', handleGameState);
-socket.on('gameOver', handleGameOver);
-socket.on('gameCode', handleGameCode);
-socket.on('unknownCode', handleUnknownCode);
-socket.on('tooManyPlayers', handleTooManyPlayers);
+GAME.socket = io(new URL((window.location.href)).hostname == 'retr-fe.herokuapp.com' ? 'https://retr-ws.herokuapp.com/' : 'http://localhost:3000');
+
+// Set the web socket listeners.
+GAME.socket.on('init', handleInit);
+GAME.socket.on('gameState', handleGameState);
+GAME.socket.on('gameOver', handleGameOver);
+GAME.socket.on('gameCode', handleGameCode);
+GAME.socket.on('unknownCode', handleUnknownCode);
+GAME.socket.on('tooManyPlayers', handleTooManyPlayers);
 
 // HTML elements for home screen..
 const gameScreen = document.getElementById('gameScreen');
@@ -44,12 +45,12 @@ function handleEnableDiagnostics(event){
 }
 // Event handlers for home screen.
 function handleNewGame() {
-  socket.emit('newGame');
+  GAME.socket.emit('newGame');
 }
 
 function handleJoinGame(code) {
   code = code ?? gameCodeInput.value;
-  socket.emit('joinGame', code);
+  GAME.socket.emit('joinGame', code);
 }
 
 // URI string query parameters.
@@ -69,9 +70,6 @@ function init(state) {
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  // Activates controller.
-  // CONTROLLER.activate(socket);
-
   // Loads player sprites.
   PLAYER_SPRITES[0].src = 'media/player-1.png';
   PLAYER_SPRITES[1].src = 'media/player-2.png';
@@ -87,8 +85,6 @@ function init(state) {
   buffer = BUFFER.create(state.world.width, state.world.height, false, true);
 
   GAME.Debugger = new GAME.plugins.PhysicsDebugger(buffer);
-
-  console.log(GAME.Debug)
 
   display.drawImage(buffer.canvas,0,0)
 
@@ -109,7 +105,11 @@ function handleGameState(gameState) {
   }
   gameState = JSON.parse(gameState);
   requestAnimationFrame(() => {
+    
+    COLLIDER.predictCollision(gameState.players[playerNumber - 1], gameState.world);
+
     paintGame(gameState);
+
   });
 }
 
@@ -124,7 +124,8 @@ function paintGame(state) {
 }
 
 function handleInit(data) {
-  CONTROLLER.activate(socket, data.playerNumber);
+  playerNumber = data.playerNumber
+  CONTROLLER.activate();
   init(data.state);
 }
 
@@ -175,81 +176,3 @@ function calculateTileSourcePosition(tile_index, tile_sheet_columns, size) {
   };
 
 }
-
-function drawPlayerDiagnostics(player) {
-  let x = 0;
-
-  if (player.id == 1) {
-    x = 5
-  } else if (player.id == 2) {
-    x = (canvas.width / 2) + 5
-  }
-
-  buffer.font = "10px/12px monospace";
-
-  buffer.fillText('pos.x: ' + numberStringFormatter(player.pos.x), x, 30);
-  buffer.fillText('vel.x: ' + numberStringFormatter(player.vel.x), x, 45);
-  buffer.fillText('dir.x: ' + numberStringFormatter(player.dir.x), x, 60);
-  buffer.fillText('grndd: ' + boolStringFormatter(player.grounded), x, 75);
-  buffer.fillText('f_set: ' + boolStringFormatter(player.animation.frame_set), x, 90);
-
-  buffer.fillText('|  pos.y: ' + numberStringFormatter(player.pos.y), x + 230, 30);
-  buffer.fillText('|  vel.y: ' + numberStringFormatter(player.vel.y), x + 230, 45);
-  buffer.fillText('|  dir.y: ' + numberStringFormatter(player.dir.y), x + 230, 60);
-  buffer.fillText('|  facng: ' + stringStringFormatter(player.facing), x + 230, 75);
-  buffer.fillText('|  frame: ' + player.animation.frame, x + 230, 90);
-
-}
-
-function boolStringFormatter(b) {
-  let result;
-
-  if (b) {
-    result = '    ' + b.toString()
-  } else {
-    result = '   ' + b.toString()
-  }
-
-  return result
-}
-
-function stringStringFormatter(s) {
-
-  const l = s.length;
-
-  if (l == 4) {
-    return '    ' + s
-  } else if (l == 5) {
-    return '   ' + s
-  } else if (l == 7) {
-    return ' ' + s
-  } else {
-    return s
-  }
-}
-
-function numberStringFormatter(n) {
-
-  n = n.toFixed(3);
-
-  if ((n < 10 & n >= 0)) { // single digits
-
-    return '   ' + n;
-
-  } else if ((n < 100 & n >= 10) || (n > -10 & n < 0)) { // double digits (including -)
-
-    return '  ' + n;
-
-  } else if ((n < 1000 & n >= 100) || (n > -100 & n <= -10)) { // triple digits (including -)
-    return ' ' + n;
-
-  } else if ((n < 10000 & n >= 1000) || (n > -1000 & n <= -100)) { // quadruple digits (including -)
-
-    return '' + n;
-
-  } else {
-    console.log("unhandled number size: " + n)
-  }
-}
-
-

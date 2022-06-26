@@ -2,6 +2,7 @@ const io = require('socket.io')();
 const { initGame, gameLoop } = require('./game');
 const { FRAME_RATE } = require('./constants');
 const { makeid } = require('./utils');
+const COLLIDER = require('./collider')
 
 const state = {};
 const clientRooms = {};
@@ -11,6 +12,7 @@ io.on('connection', client => {
   client.on('keydownup', handleKeyupdown);
   client.on('newGame', handleNewGame);
   client.on('joinGame', handleJoinGame);
+  client.on('collision', handleCollision);
 
   function handleJoinGame(roomName) {
     const room = io.sockets.adapter.rooms[roomName];
@@ -71,6 +73,12 @@ io.on('connection', client => {
     }
 
     state[roomName].players[client.number - 1].keys = keys;
+  }
+
+  function handleCollision(data) {
+    const player = state[roomName].players[client.number - 1];
+
+    COLLIDER.addPrediction(player, data);
   }
 });
 

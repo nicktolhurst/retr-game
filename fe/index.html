@@ -62,7 +62,7 @@
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
 
         <h1> GAME CODE: <span id="gameCodeDisplay"></span></h1>
-        <p> Diagnostics:  <input id="enableDiagnostics" type="checkbox" checked data-toggle="toggle"></p>
+        <p> Diagnostics:  <input id="enableDiagnostics" type="checkbox" data-toggle="toggle"></p>
         <!-- <div id="canvas_container" class="d-flex flex-column align-items-center justify-content-center"> -->
 
           <!-- <h1>Your game code is: <span id="gameCodeDisplay"></span></h1> -->
@@ -76,10 +76,18 @@
   </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
   <script src="game.js"></script>
-  <script src="diagnostics.js"></script>
-  <script src="controller.js"></script>
-  <script src="buffer.js"></script>
+
+
+
+  <script src="lib/diagnostics.js"></script>
+  <script src="lib/collider.js"></script>
+  <script src="lib/controller.js"></script>
+  <script src="lib/buffer.js"></script>
+
+
+
   <script src="index.js"></script>
 </body>
 

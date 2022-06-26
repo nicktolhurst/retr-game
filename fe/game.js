@@ -1,5 +1,5 @@
 const GAME = (() => ({ 
 
-    plugins: {},
+    plugins: {}
 
  }))();
