@@ -19,12 +19,15 @@ const BUFFER = (() => {
     }
 
     function configure(buffer, width, height) {
+
         buffer.canvas.height = height;
         buffer.canvas.width = width;
         buffer.imageSmoothingEnabled = false;
+
     }
 
     function resize (display, world, padding = 150) {
+
         // Get the height and width of the window
         var height = document.documentElement.clientHeight;
         var width = document.documentElement.clientWidth;
@@ -36,9 +39,11 @@ const BUFFER = (() => {
         // This sets the CSS of the DISPLAY canvas to resize it to the scaled height and width.
         display.canvas.style.height = (height - padding) + 'px';
         display.canvas.style.width = (width - padding) + 'px';
+
     }
 
     function paintWorld(buffer, world) {
+
         var map_index = 0;
 
         for (var top = 0; top < world.height; top += world.tile_size) {
@@ -56,10 +61,7 @@ const BUFFER = (() => {
 
                 GAME.Debugger.debug({
                     type: 'tile',
-                    pos: {
-                        x: left,
-                        y: top,
-                    },
+                    pos: { x: left, y: top, },
                     size: world.tile_size
                 });
             }
@@ -68,14 +70,40 @@ const BUFFER = (() => {
         return buffer;
     }
 
-    function paintPlayer(buffer, player, sprite_size) {
+    function paintPlayers(buffer, players) {
+
+        players.forEach(player => {
+            const index = players.map(player => player.id).indexOf(player.id);
+
+            buffer.drawImage(PLAYER_SPRITES[index], player.animation.frame * player.size, 0, player.size, player.size, Math.floor(player.pos.x), Math.floor(player.pos.y), player.size, player.size);
 
 
-        buffer.drawImage(PLAYER_SPRITES[player.id - 1], player.animation.frame * sprite_size, 0, sprite_size, sprite_size, Math.floor(player.pos.x), Math.floor(player.pos.y), sprite_size, sprite_size);
-    
-        GAME.Debugger.debug(player);
+            player.objects.forEach(object => {
+                buffer.beginPath();
+                buffer.arc(object.pos.x, object.pos.y, 3, 0, 2 * Math.PI, false);
+                buffer.fillStyle = 'black';
+                buffer.fill();
+
+                GAME.Debugger.debug(object);
+            });
+
+            GAME.Debugger.debug(player);
+        })
     }
 
-    return { create, get, resize, paintWorld, paintPlayer };
+    function paintObjects(buffer, object) {
+
+        object.forEach(object => {
+            buffer.beginPath();
+            buffer.arc(object.pos.x, object.pos.y, 3, 0, 2 * Math.PI, false);
+            buffer.fillStyle = 'black';
+            buffer.fill();
+
+            GAME.Debugger.debug(object);
+        });
+        
+    }
+
+    return { create, get, resize, paintWorld, paintPlayers, paintObjects };
 
 })();

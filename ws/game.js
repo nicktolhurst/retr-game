@@ -1,19 +1,46 @@
 const { GRAVITY, FRICTION, FRAME_SET, SCREEN_WIDTH, SCREEN_HEIGHT, SPRITE_SIZE } = require('./constants');
 const MECHANICS = require('./mechanics');
 const ANIMATOR = require('./animator');
-const STATE = require('./state');
 const { move } = require('./player');
+const { Player, World } = require('./objects')
+
+const state = {
+  players: [],
+  world: {},
+  objects: [],
+};
 
 function initGame() {
 
-  let state = STATE.state;
+  state.world = new World();
 
-  STATE.addWorld(STATE.WORLDS.basic);
+  state.players.push(new Player(300, 100, 32));
 
-  state.players[0].animation.change(FRAME_SET.face_forward)
-  state.players[1].animation.change(FRAME_SET.face_forward)
+  state.players.push(new Player(800, 100, 32));
+
+  state.players.forEach(player => {
+    player.animation.change(FRAME_SET.face_forward);
+  });
 
   return state;
+  
+}
+
+function addObject(object){
+
+  let player = state.players[object.player - 1];
+
+  let startX = player.pos.x + (player.size / 2);
+  let startY = player.pos.y + (player.size / 2);
+
+  STATE.addObject({
+    ...object,
+    vel: MECHANICS.calculateTrajectory(startX, startY, object.dest.x, object.dest.y),
+    pos: {
+      x: startX,
+      y: startY
+    }
+  });
 }
 
 function gameLoop(state) {
@@ -22,23 +49,48 @@ function gameLoop(state) {
     return;
   }
 
+  state.objects.forEach(object => {
+
+    object.pos.x += object.vel.x;
+    object.pos.y += object.vel.y;
+
+    MECHANICS.destroyAtGameBoundaries(object, state);
+    MECHANICS.setPreviousPosition(object, state);
+    // MECHANICS.collide(object, state.world, true);
+
+  });
+
   state.players.forEach(player => {
+    
+    if (player.mouse.active) {
+      player.make.attack(18);
+    }
 
     if (player.keys['up'].active && player.grounded == true) {
-      make(player)['jump'](18);
+      player.make.jump(18);
     }
 
     if (player.keys['left'].active) {
-      move(player)['left'](22);
+      player.move.left(26);
     }
 
     if (player.keys['right'].active) {
-      move(player)['right'](22);
+      player.move.right(26);
     }
 
     if (player.keys['down'].active) {
-      move(player)['down'](1.5);
-    }
+      player.move.down(1.5);
+a    }
+
+    player.objects.forEach(object => {
+
+      object.pos.x += object.vel.x;
+      object.pos.y += object.vel.y;
+
+      MECHANICS.destroyAtGameBoundaries(object, state);
+      MECHANICS.setPreviousPosition(object, state);
+
+    });
 
     MECHANICS.applyPhysics(player, GRAVITY, FRICTION);
     MECHANICS.setPreviousPosition(player);
@@ -63,4 +115,5 @@ function gameLoop(state) {
 module.exports = {
   initGame,
   gameLoop,
+  addObject
 }

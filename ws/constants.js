@@ -17,7 +17,7 @@ const FRAME_SET = {
   fall_forward: [17],
 }
 
-const FRICTION = 0.18;
+const FRICTION = 0.19;
 const GRAVITY = 1.9;
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 768;

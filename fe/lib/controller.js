@@ -2,11 +2,20 @@ const CONTROLLER = (() => {
 
     const Input = () => ({ active: false, state: false });
 
-
-    function activate() {
+    function activate(ctx) {
         document.addEventListener('keyup', keyDownUpHandler);
         document.addEventListener('keydown', keyDownUpHandler);
+        ctx.canvas.addEventListener('mousedown', mouseDownUpHandler)
+        ctx.canvas.addEventListener('mouseup', mouseDownUpHandler)
     }
+
+    const mouse = {
+        ...Input(),
+        x: 0,
+        y: 0
+    }
+
+    console.log(mouse);
 
     const keys = {
         'left': Input(),
@@ -16,8 +25,19 @@ const CONTROLLER = (() => {
         'space': Input(),
     }
 
+    function mouseDownUpHandler(event) {
+        const pointer = getRealCursorPosition(event.offsetX, event.offsetY, display.canvas.width, display.canvas.height);
+
+        var state = event.type == 'mousedown';
+
+        trigger(mouse, state);
+
+        GAME.socket.emit('mousedownup', { ...mouse, ...pointer, });
+    }
+
     function keyDownUpHandler(event) {
         event.preventDefault();
+
 
         var state = event.type == 'keydown';
 

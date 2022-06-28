@@ -1,47 +1,47 @@
-let p
+// let p
 
-move = (player) => {
-    p = player;
-    return direction;
-}
+// move = (player) => {
+//     p = player;
+//     return direction;
+// }
 
-make = (player) => {
-    p = player;
-    return direction;
-}
+// make = (player) => {
+//     p = player;
+//     return direction;
+// }
 
-const direction = {
+// const direction = {
 
-    'left': (f) => { 
+//     'left': (f) => { 
 
-        p.facing = 'left'; 
-        p.vel.x -= f;
+//         p.facing = 'left'; 
+//         p.vel.x -= f;
 
-    },
+//     },
 
-    'right': (f) => { 
+//     'right': (f) => { 
 
-        p.facing = 'right'; 
-        p.vel.x += f 
+//         p.facing = 'right'; 
+//         p.vel.x += f 
 
-    },
+//     },
 
-    'down': (f) => {
+//     'down': (f) => {
 
-        p.facing = 'forward';
-        p.vel.y += f
+//         p.facing = 'forward';
+//         p.vel.y += f
 
-    },
+//     },
 
-    'jump': (f) => { 
+//     'jump': (f) => { 
 
-        p.keys['up'].active = false; 
-        p.vel.y -= f 
+//         p.keys['up'].active = false; 
+//         p.vel.y -= f 
 
-    },
-};
+//     },
+// };
 
-module.exports = {
-    move,
-    make
-}
+// module.exports = {
+//     move,
+//     make
+// }

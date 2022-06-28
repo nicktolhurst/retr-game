@@ -19,6 +19,16 @@ module.exports = {
         }
     },
 
+    destroyAtGameBoundaries: (obj, state) => {
+
+        let isAtBoundary = obj.pos.x < 0 || obj.pos.x > state.world.width || obj.pos.y < 0 || obj.pos.y > state.world.height;
+
+        if (isAtBoundary) {
+            state.objects.splice(state.objects.indexOf(obj.id), 1);
+        } 
+
+    },
+
     setFlyingOrFalling: (p) => {
         if (Math.floor(p.pos.y) == Math.floor(p.pre.y)) {
             p.dir.y = 0;
@@ -55,9 +65,18 @@ module.exports = {
         p.vel.y += GRAVITY;
     },
 
-    setPreviousPosition: (p) => {
-        p.pre.x = p.pos.x;
-        p.pre.y = p.pos.y;
+    calculateTrajectory: (posX, posY, destX, destY, speed = 25) => {
+        
+        let dx = (destX - posX);
+        let dy = (destY - posY);
+        let mag = Math.sqrt(dx * dx + dy * dy);
+
+        return { x: (dx / mag) * speed, y: (dy / mag) * speed };
+    },
+
+    setPreviousPosition: (obj) => {
+        obj.pre.x = obj.pos.x;
+        obj.pre.y = obj.pos.y;
     },
 
     setNewPosition: (p) => {
@@ -76,19 +95,21 @@ module.exports = {
         p.vel.y = parseFloat(parseFloat(p.vel.y).toFixed(3));
     },
 
-    collide: (player, world) => {
+    collide: (obj, world, shouldDestroy = false) => {
 
         var y_offset = (32 / 5);
-        var tile_x = Math.floor((player.pos.x + player.size * 0.5) / world.tile_size);
-        var tile_y = Math.floor((player.pos.y + player.size - y_offset) / world.tile_size);
+        var tile_x = Math.floor((obj.pos.x + obj.size * 0.5) / world.tile_size);
+        var tile_y = Math.floor((obj.pos.y + obj.size - y_offset) / world.tile_size);
         var value_at_index = world.tiles[tile_y * world.columns + tile_x];
 
-        COLLIDER[value_at_index](player, tile_y, tile_x, y_offset, world.tile_size);
+        COLLIDER[value_at_index](obj, tile_y, tile_x, y_offset, world.tile_size, shouldDestroy);
 
-        tile_x = Math.floor((player.pos.x + player.size * 0.5) / world.tile_size);
-        tile_y = Math.floor((player.pos.y + player.size - y_offset) / world.tile_size);
+        tile_x = Math.floor((obj.pos.x + obj.size * 0.5) / world.tile_size);
+        tile_y = Math.floor((obj.pos.y + obj.size - y_offset) / world.tile_size);
         value_at_index = world.tiles[tile_y * world.columns + tile_x];
 
-        COLLIDER[value_at_index](player, tile_y, tile_x, y_offset, world.tile_size);
+        COLLIDER[value_at_index](obj, tile_y, tile_x, y_offset, world.tile_size, shouldDestroy);
+    
+        
     }
 }

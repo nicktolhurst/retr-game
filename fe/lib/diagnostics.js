@@ -2,7 +2,7 @@
     "use strict";
 
     const PhysicsDebugger = (function (ctx) {
-        let coral, red, green, white
+        let coral, red, green, white, gray
 
         coral = "hsla(15 , 100%,  50%, 0.5)";
         red     = "hsla(0  , 100%,  50%, 0.5)";
@@ -16,7 +16,10 @@
         // blue    = "hsla(210, 100%,  50%, 0.5)";
         // violet  = "hsla(300, 100%,  50%, 0.5)";
         // white   = "hsla(0  ,   0%, 100%, 0.5)";
-        // gray    = "hsla(0  ,   0%,  50%, 0.5)";
+        gray    = "hsla(0  ,   0%,  50%, 0.5)";
+
+        this.mouseX = null;
+        this.mouseY = null;
 
         this.config = {
 
@@ -24,6 +27,7 @@
             player: {
                 showEdges: true,
                 showDiagonals: true, 
+                showAim: true
             },
             tile: {
                 showGrid: true,
@@ -40,9 +44,9 @@
 
         this.colours = {
 
-            player: coral,
-            movement: red,
-            tile: green,
+            player: green,
+            aim: red,
+            tile: gray,
             collision: white,
 
         };
@@ -50,10 +54,7 @@
         this.render = {
 
             allEdges: renderAllEdges,
-            // leftEdge: renderLeftEdge,
-            // rightEdge: renderRightEdge,
-            // topEdge: renderTopEdge,
-            // bottomEdge: renderBottomEdge,
+            point2Point: renderPoint2Point,
             diagonals: renderDiagonals,
 
         }
@@ -62,12 +63,12 @@
     });
 
     PhysicsDebugger.prototype = {
-        // configKeys: Object.keys(DEBUG.prototype.config),
 
         debug: function (obj) {
             
             if(!this.config.on) { return}
 
+            obj.center      = { x: obj.pos.x / 2, y: obj.pos.y / 2 };
             obj.bottom      = obj.pos.y + obj.size;
             obj.left        = obj.pos.x;
             obj.top         = obj.pos.y;
@@ -86,6 +87,11 @@
                     if (this.config[obj.type].showDiagonals) {
                         this.render.diagonals(obj, this.ctx);
                     }
+
+                    if (this.config[obj.type].showAim) {
+                        this.render.point2Point(obj, this.ctx, this.mouseX, this.mouseY);
+                    }
+
 
                     break;
 
@@ -110,6 +116,15 @@
             }
 
         }
+    }
+
+    function renderPoint2Point(obj, ctx, mouseX, mouseY) {
+        ctx.strokeStyle = obj.colour;
+        ctx.lineWidth = obj.lineWidth;
+
+        ctx.moveTo(obj.pos.x + (obj.size / 2), obj.pos.y + (obj.size / 2));
+        ctx.lineTo(mouseX, mouseY);
+        ctx.stroke();
     }
 
     function renderAllEdges(obj, ctx) {

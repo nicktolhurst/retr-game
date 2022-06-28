@@ -1,5 +1,5 @@
 const io = require('socket.io')();
-const { initGame, gameLoop } = require('./game');
+const { initGame, gameLoop, addObject } = require('./game');
 const { FRAME_RATE } = require('./constants');
 const { makeid } = require('./utils');
 const COLLIDER = require('./collider')
@@ -10,9 +10,23 @@ const clientRooms = {};
 io.on('connection', client => {
 
   client.on('keydownup', handleKeyupdown);
+  client.on('mousedownup', handleMouseupdown);
+  
   client.on('newGame', handleNewGame);
   client.on('joinGame', handleJoinGame);
   client.on('collision', handleCollision);
+  client.on('getStateFor', handleGetStateFor);
+
+  function handleGetStateFor(code) {
+
+    if (!roomName) {
+      client.emit('roomNotReady');
+    }
+    
+    client.join(roomName);
+
+    client.emit('init');
+  }
 
   function handleJoinGame(roomName) {
     const room = io.sockets.adapter.rooms[roomName];
@@ -72,7 +86,20 @@ io.on('connection', client => {
       return;
     }
 
+    // TODO: Handle player better. Suggest client name being ID for lookup.
     state[roomName].players[client.number - 1].keys = keys;
+  }
+
+  function handleMouseupdown(mouse) {
+
+    const roomName = clientRooms[client.id];
+
+    if (!roomName) {
+      return;
+    }
+
+    // TODO: Handle player better. Suggest client name being ID for lookup.
+    state[roomName].players[client.number - 1].mouse = mouse;
   }
 
   function handleCollision(data) {

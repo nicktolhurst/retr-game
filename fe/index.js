@@ -37,7 +37,7 @@ enableDiagnostics.addEventListener('click', handleEnableDiagnostics);
 newGameBtn.addEventListener('click', handleNewGame);
 joinGameBtn.addEventListener('click', handleJoinGame);
 
-function handleEnableDiagnostics(event){
+function handleEnableDiagnostics(event) {
 
   if (!gameActive) { return; }
 
@@ -60,6 +60,13 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 
 if (params.code) handleJoinGame(params.code);
 
+function handleMouseDown(event) {
+  const pointer = getRealCursorPosition(event.offsetX, event.offsetY, display.canvas.width, display.canvas.height);
+
+  GAME.socket.emit("mousedown", {
+
+  });
+}
 ///////////////////
 // GAME LOGIC
 //
@@ -86,7 +93,8 @@ function init(state) {
 
   GAME.Debugger = new GAME.plugins.PhysicsDebugger(buffer);
 
-  display.drawImage(buffer.canvas,0,0)
+  display.drawImage(buffer.canvas, 0, 0)
+
 
   BUFFER.resize(display, state.world)
 
@@ -94,6 +102,17 @@ function init(state) {
     BUFFER.resize(display, state.world)
     BUFFER.resize(buffer, state.world)
   });
+
+  display.canvas.addEventListener("mousemove", function (event) {
+
+    let pointer = getRealCursorPosition(event.offsetX, event.offsetY, display.canvas.width, display.canvas.height);
+
+    GAME.Debugger.mouseX = pointer.x;
+    GAME.Debugger.mouseY = pointer.y;
+
+  }, false);
+
+  CONTROLLER.activate(display);
 
   gameActive = true;
 }
@@ -105,7 +124,7 @@ function handleGameState(gameState) {
   }
   gameState = JSON.parse(gameState);
   requestAnimationFrame(() => {
-    
+
     COLLIDER.predictCollision(gameState.players[playerNumber - 1], gameState.world);
 
     paintGame(gameState);
@@ -117,15 +136,16 @@ function paintGame(state) {
 
   BUFFER.paintWorld(buffer, state.world);
 
-  BUFFER.paintPlayer(buffer, state.players[0], SPRITE_SIZE);
-  BUFFER.paintPlayer(buffer, state.players[1], SPRITE_SIZE);
+  BUFFER.paintPlayers(buffer, state.players);
+
+  BUFFER.paintObjects(buffer, state.objects);
 
   display.drawImage(buffer.canvas, 0, 0);
 }
 
 function handleInit(data) {
   playerNumber = data.playerNumber
-  CONTROLLER.activate();
+  
   init(data.state);
 }
 
@@ -175,4 +195,21 @@ function calculateTileSourcePosition(tile_index, tile_sheet_columns, size) {
 
   };
 
+}
+
+function getRealCursorPosition(x, y, w, h) {
+
+  var height = document.documentElement.clientHeight;
+  var width = document.documentElement.clientWidth;
+
+  if (width / height < (32 / 16)) height = Math.floor(width / (32 / 16));
+  else width = Math.floor(height * (32 / 16));
+
+  var sx = w / (width - 150);
+  var sy = h / (height - 150);
+
+  return { 
+    x: x * sx,
+    y: y * sy
+  }
 }
